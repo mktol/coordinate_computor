@@ -19,12 +19,7 @@ public class Calculator {
 
     }
 
-    public void setGraph(Graph graph){
-        this.edges = new ArrayList<>(graph.getVertex());
-    }
-
-
-    public void execute(City source, List<Snippet> snippets){
+    public void execute(City source, List<Snippet> snippets, boolean isTimeIgnored){
         edges = new ArrayList<>(snippets);
         settledNodes = new HashSet<>();
         unSettledNodes = new HashSet<>();
@@ -38,24 +33,52 @@ public class Calculator {
             City node = getMinimum(unSettledNodes);
             settledNodes.add(node);
             unSettledNodes.remove(node);
-            findMinimalDistance(node);
+            findMinimalDistance(node, isTimeIgnored);
         }
     }
 
-    private void findMinimalDistance(City node) {
+    private void findMinimalDistance(City node, boolean isTimeIgnored) {
         List<City> adjacentNodes = getNeighbors(node);
+        if(isTimeIgnored){
+            calculateDistanceIgnoreTime(node, adjacentNodes);
+        }else {
+            calculateDistanceWithTime(node, adjacentNodes);
+        }
+    }
+
+    private void calculateDistanceWithTime(City node, List<City> adjacentNodes) {
         for (City target : adjacentNodes) {
             if(getShortestDistance(target) > getShortestDistance(node)+getDistance(node, target)){
                 distance.put(target, getShortestDistance(node)+getDistance(node, target));
                 predecessors.put(target, node);
                 unSettledNodes.add(target);
             }
+
         }
     }
+
+    private void calculateDistanceIgnoreTime(City node, List<City> adjacentNodes) {
+        for (City target : adjacentNodes) {
+            if(getShortestDistance(target) > getShortestDistance(node)+getDistance(node, target)) {
+                distance.put(target, getShortestDistance(node) + 1);
+                predecessors.put(target, node);
+                unSettledNodes.add(target);
+            }
+        }
+    }
+
+//    private void calculateDistanceWithTime(City node, City target) {
+//        if(getShortestDistance(target) > getShortestDistance(node)+getDistance(node, target)){
+//            distance.put(target, getShortestDistance(node)+getDistance(node, target));
+//            predecessors.put(target, node);
+//            unSettledNodes.add(target);
+//        }
+//    }
 
     private long getDistance(City node, City target) {
         for (Snippet edge : edges) {
             if(edge.getStart().equals(node) && edge.getFinish().equals(target)){
+//                return 1L;
                 return edge.duration();
             }
         }

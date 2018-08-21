@@ -8,8 +8,6 @@ import com.example.entity.Snippet;
 
 import java.util.*;
 
-
-
 public class ShortPathCalculator {
 
     private List<SnippetDto> edges;
@@ -21,11 +19,6 @@ public class ShortPathCalculator {
     public ShortPathCalculator() {
 
     }
-
-/*    public void setGraph(Graph graph){
-        this.edges = new ArrayList<>(graph.getVertex());
-    }*/
-
 
     public void execute(CityDto source, List<SnippetDto> SnippetDtos){
         edges = new ArrayList<>(SnippetDtos);

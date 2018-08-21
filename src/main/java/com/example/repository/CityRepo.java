@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface CityRepo extends CrudRepository<City, Long> {
 
     City findByCityName(String name);
+
+    @Override
+    List<City> findAll();
 }

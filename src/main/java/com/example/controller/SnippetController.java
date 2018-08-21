@@ -1,11 +1,11 @@
 package com.example.controller;
 
-import com.example.core.Calculator;
 import com.example.dto.SnippetDto;
-import com.example.entity.Snippet;
 import com.example.service.SnippetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.example.service.DtoUtils.toDto;
 
@@ -15,21 +15,27 @@ public class SnippetController {
 
     private final SnippetService snippetService;
 
-
-
     @Autowired
     public SnippetController(SnippetService snippetService) {
         this.snippetService = snippetService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("snippets/{id}")
     public SnippetDto getSnippet(@PathVariable(name = "id")String snippetId){
-        //TODO refactor it
         return toDto(snippetService.find(snippetId));
     }
 
-    @PostMapping
+    @PostMapping("snippets/")
     public SnippetDto saveSnippet(@RequestBody SnippetDto snippetDto){
         return snippetService.save(snippetDto);
+    }
+    @GetMapping("/snippets")
+    public List<SnippetDto> findAll(){
+        return snippetService.findAll();
+    }
+
+    @DeleteMapping("snippets/{id}")
+    public SnippetDto delete(@PathVariable(name = "id") Long id){
+        return  toDto(snippetService.remove(id));
     }
 }

@@ -11,9 +11,11 @@ import com.example.exception.PathNotFoundException;
 import com.example.repository.CityRepo;
 import com.example.repository.SnippetRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -49,6 +51,9 @@ public class CityService {
     }
 
     public CityDto findByName(String name) {
+        if(name==null || name.isEmpty()){
+            throw new CityNotFoundException("City name is empty");
+        }
         City city = cityRepo.findByCityName(name);
         if (city == null) {
             throw new CityNotFoundException("city with name: " + name + " does not exist.");
@@ -62,9 +67,8 @@ public class CityService {
     }
 
     public List<CityDto> findPath(final CityDto start, final CityDto finish) {
-
-        if (isCityInDb(start.getName()) && isCityInDb(finish.getName())) {
-            throw new CityNotFoundException("City is not stored!");
+        if(start==null || finish == null){
+            throw new  CityNotFoundException("Start city or finish city is not stored");
         }
 
         Iterable<Snippet> snippets = snippetRepo.findAll();
@@ -81,5 +85,17 @@ public class CityService {
     private boolean isCityInDb(String cityName) {
         City byCityName = cityRepo.findByCityName(cityName);
         return byCityName != null;
+    }
+
+    public List<CityDto> findAll() {
+        return toDto(cityRepo.findAll());
+    }
+
+    @Transactional
+    public List<CityDto> findPath(String start, String finish) {
+        CityDto startPoint = findByName(start);
+        CityDto finishPoint = findByName(finish);
+        return findPath(startPoint, finishPoint);
+
     }
 }

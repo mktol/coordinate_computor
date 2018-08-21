@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.service.DtoUtils.toDto;
+import static com.example.service.DtoUtils.toDtoList;
 import static com.example.service.DtoUtils.toEntity;
 
 @Service
@@ -42,7 +44,7 @@ public class SnippetService {
     }
 
 
-    //TODO think about return type. Is it necessary
+    //TODO think about return type. Is it necessary ?
     @Transactional
     public SnippetDto save(SnippetDto snippetDto) {
         Snippet snippet = toEntity(snippetDto);
@@ -59,5 +61,15 @@ public class SnippetService {
         Snippet savedSnipped = snippetRepo.save(snippet);
         return toDto(savedSnipped);
     }
+
+    public Snippet remove(Long id) {
+        return snippetRepo.removeById(id);
+    }
+
+    public List<SnippetDto> findAll() {
+        return toDtoList(snippetRepo.findAll());
+    }
+
+
 }
 

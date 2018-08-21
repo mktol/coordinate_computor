@@ -52,4 +52,8 @@ public class DtoUtils {
     public static List<CityDto> toDto(List<City> cities){
         return cities.stream().map(DtoUtils::toDto).collect(Collectors.toList());
     }
+
+    public static List<SnippetDto> toDtoList(List<Snippet> all) {
+        return all.stream().map(DtoUtils::toDto).collect(Collectors.toList());
+    }
 }

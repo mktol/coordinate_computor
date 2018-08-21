@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import com.example.core.Calculator;
 import com.example.dto.CityDto;
 import com.example.exception.CityNotFoundException;
 import com.example.service.CityService;
@@ -8,10 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -29,45 +24,52 @@ public class CityController {
     }
 
     @PostMapping
-    @RequestMapping("/citie")
+    @RequestMapping("/cities")
     @ResponseStatus(HttpStatus.CREATED)
-    public CityDto save(@RequestBody CityDto cityDto){
+    public CityDto save(@RequestBody CityDto cityDto) {
         return cityService.save(cityDto);
     }
-    @GetMapping("/cities/name/{name}")
-    public CityDto find(@PathVariable String name){
+
+    @GetMapping("/cities/search")
+    public CityDto find(@RequestParam String name) {
         return cityService.findByName(name);
     }
+
+    @GetMapping("/cities/")
+    public List<CityDto> getAll() {
+        return cityService.findAll();
+    }
+
     @GetMapping("/cities/{id}")
-    public CityDto findById(@PathVariable String id){
+    public CityDto findById(@PathVariable String id) {
         return cityService.findById(id);
     }
 
     @PostMapping("/cities/path/time")
-    public List<CityDto> getBestRoute(@RequestBody Map<String, CityDto> cityDtoMap){
+    public List<CityDto> getBestRoute(@RequestBody Map<String, CityDto> cityDtoMap) {
         CityDto start = cityDtoMap.get("start");
         CityDto finish = cityDtoMap.get("finish");
-        if(start==null && finish==null){
-            throw new CityNotFoundException("Start or finis is empty");
+        if (start == null && finish == null) {
+            throw new CityNotFoundException("Start or finish is empty");
         }
 
         Objects.requireNonNull(start);
         Objects.requireNonNull(finish);
         return cityService.findPath(start, finish);
     }
-    @GetMapping("temp/time")
-    public LocalDateTime getLocalDataTime(){
-        return LocalDateTime.now();
-    }
-    @GetMapping("temp/date")
-    public LocalDate getLocalData(){
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm");
 
-        LocalDate now = LocalDate.now();
-        return now;
+    @GetMapping("/cities/path/time")
+    public List<CityDto> getBestRoute(@RequestParam("start") String start, @RequestParam("finish") String finish) {
+        return cityService.findPath(start, finish);
     }
+
+    @GetMapping("/cities/path/points")
+    public List<CityDto> getBestRouteForPoints(@RequestParam("start") String start, @RequestParam("finish") String finish) {
+        return cityService.findPath(start, finish);
+    }
+
     @GetMapping("temp/date/stirng")
-    public String getLocalDataString(){
+    public String getLocalDataString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm");
 
         LocalDateTime now = LocalDateTime.now();

@@ -3,7 +3,6 @@ package com.example;
 import com.example.core.Calculator;
 import com.example.core.ShortPathCalculator;
 import com.example.entity.City;
-import com.example.entity.Graph;
 import com.example.entity.Snippet;
 import com.example.repository.CityRepo;
 import com.example.repository.SnippetRepo;
@@ -11,8 +10,7 @@ import com.example.service.SnippetService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+//import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -22,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@EnableEurekaClient
+//@EnableEurekaClient
 @SpringBootApplication
 public class CoordinateCoreApp {
     public static void main(String[] args) {
@@ -30,30 +28,31 @@ public class CoordinateCoreApp {
     }
 
     @Bean
-    public CommandLineRunner demo(CityRepo cityRepo, SnippetRepo snippetRepo, /*Calculator calculator,*/ SnippetService snippetService) {
+    public CommandLineRunner demo(CityRepo cityRepo, SnippetRepo snippetRepo, Calculator calculator, SnippetService snippetService) {
         return (args) -> {
             // save a couple of customers
-//            testDeikstra(cityRepo, snippetService, calculator);
-            testDeikstra2(cityRepo, snippetRepo/*, calculator*/);
+//            testDijkstra(cityRepo, snippetService, calculator);
+            testDijkstra2(cityRepo, snippetRepo, calculator);
 
         };
     }
 
-    @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
     @Bean
     public Calculator calculator(){
         return new Calculator();
     }
+
+
     @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
     @Bean
     public ShortPathCalculator shortPathCalculator(){
         return new ShortPathCalculator();
     }
 
-    private void testDeikstra(final CityRepo cityRepo, final SnippetService snippetService, Calculator calculator) {
+    private void testDijkstra(final CityRepo cityRepo, final SnippetService snippetService, Calculator calculator) {
         List<City> nodes = createCoordinates();
         List<Snippet> edges = new ArrayList<>();
-        Set<City> savedCoordinates = StreamSupport.stream(cityRepo.saveAll(nodes).spliterator(),false).collect(Collectors.toSet());
+        cityRepo.saveAll(nodes);
 
         addChunk(0, 1, 1000, 1085, nodes, edges);
         addChunk(0, 2, 1000, 1217, nodes, edges);
@@ -71,8 +70,8 @@ public class CoordinateCoreApp {
         Iterable<Snippet> snippets = snippetService.saveAll(edges);
         List<Snippet> snippetSet = StreamSupport.stream(snippets.spliterator(), false).collect(Collectors.toList());
 //        Graph graph = new Graph(savedCoordinates, snippetSet );
-//        calculator.setGraph(graph);
-        calculator.execute(nodes.get(0), snippetSet );
+//        calculator.setVertex(graph);
+        calculator.execute(nodes.get(0), snippetSet, false );
         LinkedList<City> path = calculator.getPath(nodes.get(10));
         Objects.requireNonNull(path);
         path.forEach(p-> System.out.println("path: "+p));
@@ -83,7 +82,7 @@ public class CoordinateCoreApp {
 
     }
 
-    public void testDeikstra2(final CityRepo cityRepo, final SnippetRepo snippetRepo/*, Calculator calculator*/){
+    public void testDijkstra2(final CityRepo cityRepo, final SnippetRepo snippetRepo, Calculator calculator){
         List<City> nodes=new ArrayList<>();
         List<Snippet> edges = new ArrayList<>();
 
@@ -94,14 +93,21 @@ public class CoordinateCoreApp {
         City nodeE=new City("E");
         City nodeF=new City("F");
 
+        City nodePI=new City("PI");
+        City nodeRO=new City("RO");
+
+
+
         nodes.add(nodeA);
         nodes.add(nodeB);
         nodes.add(nodeC);
         nodes.add(nodeD);
         nodes.add(nodeE);
         nodes.add(nodeF);
+        nodes.add(nodePI);
+        nodes.add(nodeRO);
 
-        Set<City> savedCoordinates = StreamSupport.stream(cityRepo.saveAll(nodes).spliterator(),false).collect(Collectors.toSet());
+        cityRepo.saveAll(nodes);
 
 
         Snippet snippet1 = new Snippet(nodeA, nodeB, 300L,310L);
@@ -109,27 +115,31 @@ public class CoordinateCoreApp {
         Snippet snippet3 = new Snippet(nodeB, nodeD, 300L,312L);
         Snippet snippet4 = new Snippet(nodeB, nodeF, 300L,315L);
         Snippet snippet5 = new Snippet(nodeC, nodeE, 300L,310L);
-//        Snippet snippet6 = new Snippet(nodeD, nodeE, 300L,302L);
+        Snippet snippet6 = new Snippet(nodeD, nodeE, 300L,302L);
         Snippet snippet7 = new Snippet(nodeD, nodeF, 300L,301L);
         Snippet snippet8 = new Snippet(nodeF, nodeE, 300L,305L);
+
+        Snippet snippet9 = new Snippet(nodePI, nodeRO, 300L,1305L);
+
 
         edges.add(snippet1);
         edges.add(snippet2);
         edges.add(snippet3);
         edges.add(snippet4);
         edges.add(snippet5);
-//        edges.add(snippet6);
+        edges.add(snippet6);
         edges.add(snippet7);
         edges.add(snippet8);
+
+        edges.add(snippet9);
 
         Iterable<Snippet> snippets = snippetRepo.saveAll(edges);
         List<Snippet> snippetList = StreamSupport.stream(snippets.spliterator(), false).collect(Collectors.toList());
 //        Graph graph = new Graph(savedCoordinates, snippetSet );
-//        calculator.setGraph(graph);
 
-/*        calculator.execute(nodeA, snippetList);
-        LinkedList<City> path = calculator.getPath(nodeE);
-        path.forEach(p-> System.out.println(p));*/
+        calculator.execute(nodeA, snippetList,true);
+        LinkedList<City> path = calculator.getPath(nodeF);
+        path.forEach(p-> System.out.println(p));
 
 
     }
