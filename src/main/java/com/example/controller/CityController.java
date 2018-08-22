@@ -45,27 +45,14 @@ public class CityController {
         return cityService.findById(id);
     }
 
-    @PostMapping("/cities/path/time")
-    public List<CityDto> getBestRoute(@RequestBody Map<String, CityDto> cityDtoMap) {
-        CityDto start = cityDtoMap.get("start");
-        CityDto finish = cityDtoMap.get("finish");
-        if (start == null && finish == null) {
-            throw new CityNotFoundException("Start or finish is empty");
-        }
-
-        Objects.requireNonNull(start);
-        Objects.requireNonNull(finish);
-        return cityService.findPath(start, finish);
-    }
-
     @GetMapping("/cities/path/time")
-    public List<CityDto> getBestRoute(@RequestParam("start") String start, @RequestParam("finish") String finish) {
-        return cityService.findPath(start, finish);
+    public List<CityDto> getBestRouteByTime(@RequestParam("start") String start, @RequestParam("finish") String finish) {
+        return cityService.findShortestPathByTime(start, finish);
     }
 
     @GetMapping("/cities/path/points")
-    public List<CityDto> getBestRouteForPoints(@RequestParam("start") String start, @RequestParam("finish") String finish) {
-        return cityService.findPath(start, finish);
+    public List<CityDto> getBestRouteByPoints(@RequestParam("start") String start, @RequestParam("finish") String finish) {
+        return cityService.findShortestPathByCities(start, finish);
     }
 
     @GetMapping("temp/date/stirng")

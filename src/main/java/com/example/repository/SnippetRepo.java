@@ -15,7 +15,8 @@ public interface SnippetRepo extends CrudRepository<Snippet, Long> {
 
     Snippet findByStart_CityNameAndFinish_CityName(String startCityName, String finishCityName);
 
-    Snippet removeById(Long id);
+    void removeById(Long id);
+
 
     @Override
     List<Snippet> findAll();

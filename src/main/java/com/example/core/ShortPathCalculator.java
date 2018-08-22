@@ -20,8 +20,8 @@ public class ShortPathCalculator {
 
     }
 
-    public void execute(CityDto source, List<SnippetDto> SnippetDtos){
-        edges = new ArrayList<>(SnippetDtos);
+    public void execute(CityDto source, List<SnippetDto> snippets, boolean isTimeIgnored){
+        edges = new ArrayList<>(snippets);
         settledNodes = new HashSet<>();
         unSettledNodes = new HashSet<>();
         predecessors = new HashMap<>();
@@ -34,24 +34,52 @@ public class ShortPathCalculator {
             CityDto node = getMinimum(unSettledNodes);
             settledNodes.add(node);
             unSettledNodes.remove(node);
-            findMinimalDistance(node);
+            findMinimalDistance(node, isTimeIgnored);
         }
     }
 
-    private void findMinimalDistance(CityDto node) {
+    private void findMinimalDistance(CityDto node, boolean isTimeIgnored) {
         List<CityDto> adjacentNodes = getNeighbors(node);
+        if(isTimeIgnored){
+            calculateDistanceIgnoreTime(node, adjacentNodes);
+        }else {
+            calculateDistanceWithTime(node, adjacentNodes);
+        }
+    }
+
+    private void calculateDistanceWithTime(CityDto node, List<CityDto> adjacentNodes) {
         for (CityDto target : adjacentNodes) {
             if(getShortestDistance(target) > getShortestDistance(node)+getDistance(node, target)){
                 distance.put(target, getShortestDistance(node)+getDistance(node, target));
                 predecessors.put(target, node);
                 unSettledNodes.add(target);
             }
+
         }
     }
+
+    private void calculateDistanceIgnoreTime(CityDto node, List<CityDto> adjacentNodes) {
+        for (CityDto target : adjacentNodes) {
+            if(getShortestDistance(target) > getShortestDistance(node)+getDistance(node, target)) {
+                distance.put(target, getShortestDistance(node) + 1);
+                predecessors.put(target, node);
+                unSettledNodes.add(target);
+            }
+        }
+    }
+
+//    private void calculateDistanceWithTime(CityDto node, CityDto target) {
+//        if(getShortestDistance(target) > getShortestDistance(node)+getDistance(node, target)){
+//            distance.put(target, getShortestDistance(node)+getDistance(node, target));
+//            predecessors.put(target, node);
+//            unSettledNodes.add(target);
+//        }
+//    }
 
     private long getDistance(CityDto node, CityDto target) {
         for (SnippetDto edge : edges) {
             if(edge.getStart().equals(node) && edge.getFinish().equals(target)){
+//                return 1L;
                 return edge.duration();
             }
         }

@@ -66,14 +66,16 @@ public class CityService {
         return toDto(city.orElseThrow(() -> new CityNotFoundException("Can not find city with id: " + id)));
     }
 
-    public List<CityDto> findPath(final CityDto start, final CityDto finish) {
+
+
+    public List<CityDto> findPath(final CityDto start, final CityDto finish, boolean isTimeIgnored ) {
         if(start==null || finish == null){
             throw new  CityNotFoundException("Start city or finish city is not stored");
         }
 
         Iterable<Snippet> snippets = snippetRepo.findAll();
         List<SnippetDto> allSnippetsDto = StreamSupport.stream(snippets.spliterator(), false).map(DtoUtils::toDto).collect(Collectors.toList());
-        shortPathCalculator.execute(start, allSnippetsDto);
+        shortPathCalculator.execute(start, allSnippetsDto, isTimeIgnored);
         LinkedList<CityDto> path = shortPathCalculator.getPath(finish);
 
         if (path == null || path.isEmpty()) {
@@ -91,11 +93,17 @@ public class CityService {
         return toDto(cityRepo.findAll());
     }
 
-    @Transactional
-    public List<CityDto> findPath(String start, String finish) {
+    public List<CityDto> findShortestPathByTime(final String start, final String finish){
         CityDto startPoint = findByName(start);
         CityDto finishPoint = findByName(finish);
-        return findPath(startPoint, finishPoint);
+        return findPath(startPoint, finishPoint, false);
+    }
+
+    @Transactional
+    public List<CityDto> findShortestPathByCities(String start, String finish) {
+        CityDto startPoint = findByName(start);
+        CityDto finishPoint = findByName(finish);
+        return findPath(startPoint, finishPoint, true);
 
     }
 }

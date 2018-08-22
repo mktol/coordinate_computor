@@ -3,6 +3,8 @@ package com.example.controller;
 import com.example.dto.SnippetDto;
 import com.example.service.SnippetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +22,12 @@ public class SnippetController {
         this.snippetService = snippetService;
     }
 
-    @GetMapping("snippets/{id}")
+    @GetMapping("/snippets/{id}")
     public SnippetDto getSnippet(@PathVariable(name = "id")String snippetId){
         return toDto(snippetService.find(snippetId));
     }
 
-    @PostMapping("snippets/")
+    @PostMapping("/snippets")
     public SnippetDto saveSnippet(@RequestBody SnippetDto snippetDto){
         return snippetService.save(snippetDto);
     }
@@ -34,8 +36,9 @@ public class SnippetController {
         return snippetService.findAll();
     }
 
-    @DeleteMapping("snippets/{id}")
-    public SnippetDto delete(@PathVariable(name = "id") Long id){
-        return  toDto(snippetService.remove(id));
+    @DeleteMapping("/snippets/{id}")
+    public ResponseEntity delete(@PathVariable(name = "id") Long id){
+        snippetService.remove(id);
+        return  ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
     }
 }

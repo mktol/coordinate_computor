@@ -62,8 +62,13 @@ public class SnippetService {
         return toDto(savedSnipped);
     }
 
-    public Snippet remove(Long id) {
-        return snippetRepo.removeById(id);
+
+    public void remove(Long id) {
+        Optional<Snippet> optional = snippetRepo.findById(id);
+        if(optional.isPresent()) {
+            snippetRepo.deleteById(id);
+        }
+        // do nothing
     }
 
     public List<SnippetDto> findAll() {
